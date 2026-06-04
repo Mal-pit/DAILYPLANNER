@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DayFlow – Smart Daily Planner. Login to manage your tasks, schedule, and habits.">
+  <title>Login – DayFlow Daily Planner</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="auth-wrapper">
+
+  <div class="auth-panel-left">
+    <div class="auth-brand fade-in">
+      <div class="logo-icon">📅</div>
+      <h1>DayFlow</h1>
+      <p>Your personal daily planning companion. Stay organised, stay productive.</p>
+    </div>
+
+    <div class="auth-features fade-in-2">
+      <div class="auth-feature-item"><span class="dot"></span> Manage tasks with priority tracking</div>
+      <div class="auth-feature-item"><span class="dot"></span> Visualise your daily schedule</div>
+      <div class="auth-feature-item"><span class="dot"></span> Build streaks with habit tracking</div>
+      <div class="auth-feature-item"><span class="dot"></span> Dashboard with charts &amp; insights</div>
+    </div>
+  </div>
+
+  <div class="auth-panel-right">
+    <div class="auth-form-box fade-in">
+      <h2>Welcome back</h2>
+      <p class="auth-subtitle">Sign in to your planner account</p>
+
+      <div class="form-error" id="loginError" style="display:none;"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="e.g. admin" autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">
+          Sign In &rarr;
+        </button>
+      </form>
+
+      <div style="margin-top:28px; background:var(--amber-pale); border:1.5px solid var(--amber-light); border-radius:var(--radius); padding:14px 18px;">
+        <div style="font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); margin-bottom:8px;">🔑 Demo Credentials</div>
+        <div style="font-size:.84rem; color:var(--ink-soft); display:flex; flex-direction:column; gap:4px;">
+          <span><strong>admin</strong> / admin123</span>
+          <span><strong>sarah</strong> / sarah2024</span>
+          <span><strong>demo</strong> / demo1234</span>
+        </div>
+      </div>
+
+      <div class="auth-switch">
+        Don't have an account? <a href="register.html">Register here</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Demo users
+  const DEMO_USERS = {
+    admin: { password: 'admin123', name: 'Admin User', role: 'Administrator', email: 'admin@dayflow.app' },
+    sarah: { password: 'sarah2024', name: 'Sarah Lee', role: 'User', email: 'sarah@dayflow.app' },
+    demo:  { password: 'demo1234', name: 'Demo User', role: 'Guest', email: 'demo@dayflow.app' },
+  };
+
+  // Redirect if already logged in
+  if (localStorage.getItem('dayflow_user')) {
+    window.location.href = 'dashboard.html';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errDiv   = document.getElementById('loginError');
+
+    if (!username || !password) {
+      errDiv.textContent = '⚠️ Sila masukkan username dan password.';
+      errDiv.style.display = 'flex';
+      return;
+    }
+
+    const user = DEMO_USERS[username];
+    if (user && user.password === password) {
+      localStorage.setItem('dayflow_user', JSON.stringify({
+        username, name: user.name, role: user.role, email: user.email
+      }));
+      window.location.href = 'dashboard.html';
+    } else {
+      errDiv.textContent = '❌ Username atau password salah. Sila cuba lagi.';
+      errDiv.style.display = 'flex';
+    }
+  });
+</script>
+
+</body>
+</html>

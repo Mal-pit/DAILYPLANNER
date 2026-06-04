@@ -1,0 +1,306 @@
+{
+    "tasks": [
+        {
+            "id": 1,
+            "title": "Design landing page mockup",
+            "category": "Work",
+            "priority": "High",
+            "due": "2025-07-05",
+            "status": "In Progress",
+            "progress": 65,
+            "notes": ""
+        },
+        {
+            "id": 2,
+            "title": "Review project proposal",
+            "category": "Work",
+            "priority": "High",
+            "due": "2025-07-04",
+            "status": "Pending",
+            "progress": 0,
+            "notes": ""
+        },
+        {
+            "id": 3,
+            "title": "Morning jog \u2013 5 km",
+            "category": "Health",
+            "priority": "Medium",
+            "due": "2025-07-04",
+            "status": "Done",
+            "progress": 100,
+            "notes": ""
+        },
+        {
+            "id": 4,
+            "title": "Read \"Atomic Habits\" ch. 6",
+            "category": "Personal",
+            "priority": "Low",
+            "due": "2025-07-06",
+            "status": "Pending",
+            "progress": 0,
+            "notes": ""
+        },
+        {
+            "id": 5,
+            "title": "Weekly grocery shopping",
+            "category": "Personal",
+            "priority": "Medium",
+            "due": "2025-07-05",
+            "status": "Pending",
+            "progress": 0,
+            "notes": ""
+        },
+        {
+            "id": 6,
+            "title": "Prepare internship report",
+            "category": "Work",
+            "priority": "High",
+            "due": "2025-07-07",
+            "status": "In Progress",
+            "progress": 40,
+            "notes": ""
+        },
+        {
+            "id": 7,
+            "title": "Call dentist \u2013 reschedule",
+            "category": "Health",
+            "priority": "Low",
+            "due": "2025-07-08",
+            "status": "Pending",
+            "progress": 0,
+            "notes": ""
+        },
+        {
+            "id": 8,
+            "title": "Update portfolio website",
+            "category": "Work",
+            "priority": "Medium",
+            "due": "2025-07-09",
+            "status": "In Progress",
+            "progress": 30,
+            "notes": ""
+        },
+        {
+            "id": 9,
+            "title": "Meditate \u2013 15 minutes",
+            "category": "Health",
+            "priority": "Low",
+            "due": "2025-07-04",
+            "status": "Done",
+            "progress": 100,
+            "notes": ""
+        },
+        {
+            "id": 10,
+            "title": "Send invoice to client",
+            "category": "Work",
+            "priority": "High",
+            "due": "2025-07-04",
+            "status": "Done",
+            "progress": 100,
+            "notes": ""
+        },
+        {
+            "id": 11,
+            "title": "Sleep",
+            "category": "Health",
+            "priority": "High",
+            "due": "2026-06-04",
+            "status": "Pending",
+            "progress": 56,
+            "notes": ""
+        }
+    ],
+    "schedule": [
+        {
+            "id": 1,
+            "time": "07:00",
+            "title": "Morning Jog",
+            "type": "green",
+            "duration": "45 min",
+            "location": "City Park"
+        },
+        {
+            "id": 2,
+            "time": "09:00",
+            "title": "Team Standup Meeting",
+            "type": "blue",
+            "duration": "30 min",
+            "location": "Zoom Call"
+        },
+        {
+            "id": 9,
+            "time": "09:30",
+            "title": "Breakfast",
+            "type": "green",
+            "duration": "",
+            "location": "kitchen"
+        },
+        {
+            "id": 3,
+            "time": "10:00",
+            "title": "Work on IMS566 Project",
+            "type": "amber",
+            "duration": "2 hours",
+            "location": "Home Office"
+        },
+        {
+            "id": 4,
+            "time": "12:30",
+            "title": "Lunch Break",
+            "type": "green",
+            "duration": "1 hour",
+            "location": "Canteen"
+        },
+        {
+            "id": 5,
+            "time": "14:00",
+            "title": "Review Project Proposal",
+            "type": "amber",
+            "duration": "1.5 hours",
+            "location": "Library"
+        },
+        {
+            "id": 6,
+            "time": "16:00",
+            "title": "Grocery Shopping",
+            "type": "blue",
+            "duration": "1 hour",
+            "location": "Aeon Mall"
+        },
+        {
+            "id": 7,
+            "time": "19:00",
+            "title": "Evening Meditation",
+            "type": "green",
+            "duration": "15 min",
+            "location": "Bedroom"
+        },
+        {
+            "id": 8,
+            "time": "20:00",
+            "title": "Read Atomic Habits",
+            "type": "amber",
+            "duration": "45 min",
+            "location": "Living Room"
+        }
+    ],
+    "habits": [
+        {
+            "id": 1,
+            "name": "Morning Exercise",
+            "icon": "\ud83c\udfc3",
+            "streak": 12,
+            "target": 30,
+            "completed": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+            ],
+            "category": "Health"
+        },
+        {
+            "id": 2,
+            "name": "Read 20 Pages",
+            "icon": "\ud83d\udcd6",
+            "streak": 7,
+            "target": 30,
+            "completed": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "category": "Personal"
+        },
+        {
+            "id": 3,
+            "name": "Drink 8 Glasses",
+            "icon": "\ud83d\udca7",
+            "streak": 20,
+            "target": 30,
+            "completed": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+            ],
+            "category": "Health"
+        },
+        {
+            "id": 4,
+            "name": "Study 2 Hours",
+            "icon": "\ud83d\udcbb",
+            "streak": 5,
+            "target": 30,
+            "completed": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "category": "Work"
+        },
+        {
+            "id": 5,
+            "name": "No Social Media 9pm+",
+            "icon": "\ud83d\udcf5",
+            "streak": 3,
+            "target": 30,
+            "completed": [
+                1,
+                2,
+                3
+            ],
+            "category": "Personal"
+        },
+        {
+            "id": 6,
+            "name": "Daily Journaling",
+            "icon": "\ud83d\udcdd",
+            "streak": 9,
+            "target": 30,
+            "completed": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            ],
+            "category": "Personal"
+        }
+    ]
+}

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DayFlow Schedule – Plan and manage your daily schedule.">
+  <title>Schedule – DayFlow</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <div id="sidebarContainer"></div>
+
+  <div class="main-content">
+    <div id="topbarContainer"></div>
+
+    <main class="page-content">
+
+      <div id="flashMsg"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;" class="fade-in">
+        <div>
+          <h2 style="font-size:1.6rem;">Today's Schedule</h2>
+          <p style="color:var(--ink-muted);font-size:.88rem;" id="scheduleSubtitle"></p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('addEventModal')">+ Add Event</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid fade-in" style="margin-bottom:24px;" id="scheduleStats"></div>
+
+      <!-- Main content -->
+      <div class="two-col fade-in-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>Time Blocks</h3>
+            <div style="display:flex;gap:6px;">
+              <span class="badge badge-amber">Work</span>
+              <span class="badge badge-sage">Health</span>
+              <span class="badge badge-sky">Other</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:12px;" id="timeBlocks"></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:22px;">
+          <div class="card">
+            <div class="card-header"><h3>Time Distribution</h3></div>
+            <div class="card-body"><canvas id="timeChart" style="max-height:220px;"></canvas></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Event Table</h3>
+              <span class="badge badge-muted" id="eventCount"></span>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Time</th><th>Event</th><th>Duration</th><th>Location</th><th>Type</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="eventTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <div id="footerContainer"></div>
+  </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal-overlay" id="addEventModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add New Event</h3>
+      <button class="modal-close" onclick="closeModal('addEventModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Event Title *</label>
+        <input type="text" id="add_event_title" placeholder="e.g. Team Meeting" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="time" id="add_event_time" value="09:00">
+        </div>
+        <div class="form-group">
+          <label>Duration</label>
+          <input type="text" id="add_event_duration" placeholder="e.g. 1 hour">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="add_event_location" placeholder="e.g. Zoom / Library">
+      </div>
+      <div class="form-group">
+        <label>Event Type</label>
+        <select id="add_event_type">
+          <option value="amber">Work / Study</option>
+          <option value="green">Health / Wellness</option>
+          <option value="blue">Personal / Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal-overlay" id="editEventModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Event</h3>
+      <button class="modal-close" onclick="closeModal('editEventModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit_event_id">
+      <div class="form-group">
+        <label>Event Title *</label>
+        <input type="text" id="edit_event_title" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="time" id="edit_event_time">
+        </div>
+        <div class="form-group">
+          <label>Duration</label>
+          <input type="text" id="edit_event_duration">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="edit_event_location">
+      </div>
+      <div class="form-group">
+        <label>Event Type</label>
+        <select id="edit_event_type">
+          <option value="amber">Work / Study</option>
+          <option value="green">Health / Wellness</option>
+          <option value="blue">Personal / Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editEventModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+requireAuth();
+document.getElementById('sidebarContainer').innerHTML = renderSidebar('schedule.html');
+document.getElementById('topbarContainer').innerHTML  = renderTopbar('Schedule');
+document.getElementById('footerContainer').innerHTML  = renderFooter();
+
+const now = new Date();
+document.getElementById('scheduleSubtitle').textContent =
+  `${now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} — events planned`;
+
+let timeChart = null;
+const typeLabel = { amber:'Work', green:'Health', blue:'Personal' };
+const typeBadge = { amber:'badge-amber', green:'badge-sage', blue:'badge-sky' };
+
+function flash(msg, type='success') {
+  const el = document.getElementById('flashMsg');
+  el.innerHTML = `<div class="form-${type} fade-in">${msg}</div>`;
+  setTimeout(()=>el.innerHTML='', 3000);
+}
+
+function renderSchedule() {
+  const schedule = getSchedule().sort((a,b)=>a.time.localeCompare(b.time));
+  const total     = schedule.length;
+  const workCnt   = schedule.filter(e=>e.type==='amber').length;
+  const healthCnt = schedule.filter(e=>e.type==='green').length;
+  const otherCnt  = schedule.filter(e=>e.type==='blue').length;
+
+  document.getElementById('scheduleSubtitle').textContent =
+    `${now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} — ${total} events planned`;
+
+  document.getElementById('scheduleStats').innerHTML = `
+    <div class="stat-card stat-amber"><div class="stat-label">Total Events</div><div class="stat-value">${total}</div><div class="stat-sub">Scheduled today</div><div class="stat-icon">📆</div></div>
+    <div class="stat-card stat-rose"><div class="stat-label">Work / Study</div><div class="stat-value">${workCnt}</div><div class="stat-sub">Focus sessions</div><div class="stat-icon">💼</div></div>
+    <div class="stat-card stat-sage"><div class="stat-label">Health</div><div class="stat-value">${healthCnt}</div><div class="stat-sub">Wellness activities</div><div class="stat-icon">💪</div></div>
+    <div class="stat-card stat-sky"><div class="stat-label">Other</div><div class="stat-value">${otherCnt}</div><div class="stat-sub">Personal &amp; errands</div><div class="stat-icon">🌀</div></div>
+  `;
+
+  // Time blocks
+  document.getElementById('timeBlocks').innerHTML = !total
+    ? `<p style="text-align:center;color:var(--ink-muted);padding:32px;">No events yet. Add one!</p>`
+    : schedule.map(ev=>`
+      <div class="time-slot">
+        <div class="slot-time">${ev.time}</div>
+        <div class="slot-event ${ev.type}" style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="event-title">${ev.title}</div>
+            <div class="event-sub">⏱ ${ev.duration} &nbsp;📍 ${ev.location}</div>
+          </div>
+          <div style="display:flex;gap:5px;margin-left:12px;flex-shrink:0;">
+            <button class="btn btn-secondary btn-sm" onclick='openEditEvent(${JSON.stringify(ev)})' style="padding:3px 8px;font-size:.78rem;" title="Edit">✏️</button>
+            <button class="btn btn-sm" style="background:var(--rose);color:#fff;border-color:var(--rose);padding:3px 8px;font-size:.78rem;" onclick="deleteEvent(${ev.id})" title="Delete">🗑️</button>
+          </div>
+        </div>
+      </div>`).join('');
+
+  // Event table
+  document.getElementById('eventCount').textContent = `${total} rows`;
+  document.getElementById('eventTable').innerHTML = schedule.map(ev=>`
+    <tr>
+      <td style="font-weight:600;font-size:.88rem;color:var(--amber);">${ev.time}</td>
+      <td style="font-weight:600;font-size:.9rem;">${ev.title}</td>
+      <td style="font-size:.85rem;color:var(--ink-soft);">${ev.duration}</td>
+      <td style="font-size:.85rem;color:var(--ink-muted);">📍 ${ev.location}</td>
+      <td><span class="badge ${typeBadge[ev.type]||'badge-muted'}">${typeLabel[ev.type]||'Other'}</span></td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-secondary btn-sm" onclick='openEditEvent(${JSON.stringify(ev)})' style="padding:3px 8px;" title="Edit">✏️</button>
+          <button class="btn btn-sm" style="background:var(--rose);color:#fff;border-color:var(--rose);padding:3px 8px;" onclick="deleteEvent(${ev.id})" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // Chart
+  if (timeChart) {
+    timeChart.data.datasets[0].data = [workCnt, healthCnt, otherCnt];
+    timeChart.update();
+  } else {
+    const ctx = document.getElementById('timeChart').getContext('2d');
+    timeChart = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:['Work / Study','Health','Personal'],
+        datasets:[{ label:'Events', data:[workCnt,healthCnt,otherCnt], backgroundColor:['#D4822A','#6B8F6E','#4A7FA5'], borderRadius:8, borderSkipped:false }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{
+          x:{beginAtZero:true,grid:{color:'#E8E2D9'},ticks:{stepSize:1,font:{family:'DM Sans'}}},
+          y:{grid:{display:false},ticks:{font:{family:'DM Sans',size:12}}}
+        }
+      }
+    });
+  }
+}
+
+function addEvent() {
+  const title = document.getElementById('add_event_title').value.trim();
+  if (!title) { alert('Please enter an event title.'); return; }
+  const schedule = getSchedule();
+  schedule.push({
+    id:       nextId(schedule),
+    title,
+    time:     document.getElementById('add_event_time').value,
+    duration: document.getElementById('add_event_duration').value,
+    location: document.getElementById('add_event_location').value,
+    type:     document.getElementById('add_event_type').value,
+  });
+  saveSchedule(schedule);
+  closeModal('addEventModal');
+  document.getElementById('add_event_title').value    = '';
+  document.getElementById('add_event_duration').value = '';
+  document.getElementById('add_event_location').value = '';
+  renderSchedule();
+  flash('✅ Event added!');
+}
+
+function openEditEvent(ev) {
+  document.getElementById('edit_event_id').value       = ev.id;
+  document.getElementById('edit_event_title').value    = ev.title;
+  document.getElementById('edit_event_time').value     = ev.time;
+  document.getElementById('edit_event_duration').value = ev.duration;
+  document.getElementById('edit_event_location').value = ev.location;
+  setSelectValue('edit_event_type', ev.type);
+  openModal('editEventModal');
+}
+
+function saveEvent() {
+  const id       = parseInt(document.getElementById('edit_event_id').value);
+  const schedule = getSchedule();
+  const idx      = schedule.findIndex(e=>e.id===id);
+  if (idx < 0) return;
+  schedule[idx] = {
+    ...schedule[idx],
+    title:    document.getElementById('edit_event_title').value.trim(),
+    time:     document.getElementById('edit_event_time').value,
+    duration: document.getElementById('edit_event_duration').value,
+    location: document.getElementById('edit_event_location').value,
+    type:     document.getElementById('edit_event_type').value,
+  };
+  saveSchedule(schedule);
+  closeModal('editEventModal');
+  renderSchedule();
+  flash('✏️ Event updated!');
+}
+
+function deleteEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  saveSchedule(getSchedule().filter(e=>e.id!==id));
+  renderSchedule();
+  flash('🗑️ Event deleted.','error');
+}
+
+renderSchedule();
+</script>
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DayFlow Tasks – Manage your daily tasks.">
+  <title>Tasks – DayFlow</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <div id="sidebarContainer"></div>
+
+  <div class="main-content">
+    <div id="topbarContainer"></div>
+
+    <main class="page-content">
+
+      <div id="flashMsg"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;" class="fade-in">
+        <div>
+          <h2 style="font-size:1.6rem;">My Tasks</h2>
+          <p style="color:var(--ink-muted);font-size:.88rem;" id="taskCount"></p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('addTaskModal')">+ Add Task</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="card fade-in" style="margin-bottom:22px;">
+        <div class="card-body" style="padding:16px 20px;">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="form-group" style="flex:2;min-width:160px;margin-bottom:0;">
+              <label>Search</label>
+              <input type="text" id="filterSearch" placeholder="Search tasks…">
+            </div>
+            <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0;">
+              <label>Status</label>
+              <select id="filterStatus">
+                <option value="all">All</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0;">
+              <label>Priority</label>
+              <select id="filterPriority">
+                <option value="all">All</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0;">
+              <label>Category</label>
+              <select id="filterCategory">
+                <option value="all">All</option>
+                <option value="Work">Work</option>
+                <option value="Health">Health</option>
+                <option value="Personal">Personal</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:0;align-self:flex-end;">
+              <button class="btn btn-primary btn-sm" onclick="applyFilters()">Filter</button>
+              <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="three-col fade-in-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>Task List</h3>
+            <span class="badge badge-amber" id="filteredCount"></span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Task</th><th>Category</th><th>Priority</th>
+                  <th>Due Date</th><th>Status</th><th>Progress</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="taskTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:22px;">
+          <div class="card">
+            <div class="card-header"><h3>By Priority</h3></div>
+            <div class="card-body"><canvas id="priorityPie" style="max-height:200px;"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Quick Stats</h3></div>
+            <div class="card-body" id="quickStats"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <div id="footerContainer"></div>
+  </div>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="addTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add New Task</h3>
+      <button class="modal-close" onclick="closeModal('addTaskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Task Title *</label>
+        <input type="text" id="add_title" placeholder="What do you need to do?" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="add_category">
+            <option value="Work">Work</option>
+            <option value="Health">Health</option>
+            <option value="Personal">Personal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="add_priority">
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="add_due">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="add_status">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Progress (%)</label>
+        <input type="number" id="add_progress" value="0" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="add_notes" placeholder="Any additional details…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('addTaskModal')">Cancel</button>
+      <button type="button" class="btn btn-primary" onclick="addTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div class="modal-overlay" id="editTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Task</h3>
+      <button class="modal-close" onclick="closeModal('editTaskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit_id">
+      <div class="form-group">
+        <label>Task Title *</label>
+        <input type="text" id="edit_title" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="edit_category">
+            <option value="Work">Work</option>
+            <option value="Health">Health</option>
+            <option value="Personal">Personal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="edit_priority">
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="edit_due">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="edit_status">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Progress (%)</label>
+        <input type="number" id="edit_progress" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="edit_notes"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('editTaskModal')">Cancel</button>
+      <button type="button" class="btn btn-primary" onclick="saveTask()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+requireAuth();
+document.getElementById('sidebarContainer').innerHTML = renderSidebar('tasks.html');
+document.getElementById('topbarContainer').innerHTML  = renderTopbar('My Tasks');
+document.getElementById('footerContainer').innerHTML  = renderFooter();
+
+// Set default due date
+document.getElementById('add_due').value = new Date().toISOString().split('T')[0];
+
+let pieChart = null;
+
+function flash(msg, type='success') {
+  const el = document.getElementById('flashMsg');
+  el.innerHTML = `<div class="form-${type} fade-in">${msg}</div>`;
+  setTimeout(()=>el.innerHTML='', 3000);
+}
+
+function getFiltered() {
+  const tasks    = getTasks();
+  const search   = document.getElementById('filterSearch').value.toLowerCase();
+  const status   = document.getElementById('filterStatus').value;
+  const priority = document.getElementById('filterPriority').value;
+  const category = document.getElementById('filterCategory').value;
+  return tasks.filter(t => {
+    if (status   !== 'all' && t.status   !== status)   return false;
+    if (priority !== 'all' && t.priority !== priority) return false;
+    if (category !== 'all' && t.category !== category) return false;
+    if (search && !t.title.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+const catBadge    = { Work:'badge-sky', Health:'badge-sage', Personal:'badge-amber' };
+const statusBadge = { Done:'badge-sage', 'In Progress':'badge-amber', Pending:'badge-muted' };
+
+function renderTable() {
+  const tasks    = getTasks();
+  const filtered = getFiltered();
+  document.getElementById('taskCount').textContent    = `${filtered.length} of ${tasks.length} tasks shown`;
+  document.getElementById('filteredCount').textContent = `${filtered.length} items`;
+
+  document.getElementById('taskTableBody').innerHTML = filtered.length === 0
+    ? `<tr><td colspan="8" style="text-align:center;color:var(--ink-muted);padding:32px;">No tasks match your filters.</td></tr>`
+    : filtered.map((t,i) => `
+      <tr>
+        <td style="color:var(--ink-muted);font-size:.82rem;">${i+1}</td>
+        <td>
+          <strong style="font-size:.9rem;">${t.title}</strong>
+          ${t.notes ? `<div style="font-size:.78rem;color:var(--ink-muted);margin-top:2px;">${t.notes.slice(0,50)}${t.notes.length>50?'…':''}</div>` : ''}
+        </td>
+        <td><span class="badge ${catBadge[t.category]||'badge-muted'}">${t.category}</span></td>
+        <td><span class="task-priority priority-${t.priority.toLowerCase()}">${t.priority}</span></td>
+        <td style="font-size:.85rem;color:var(--ink-soft);">${t.due}</td>
+        <td><span class="badge ${statusBadge[t.status]||'badge-muted'}">${t.status}</span></td>
+        <td style="min-width:80px;">
+          <div style="font-size:.78rem;color:var(--ink-muted);margin-bottom:3px;">${t.progress}%</div>
+          <div class="progress-bar-wrap" style="height:6px;"><div class="progress-bar ${t.progress>=100?'green':''}" style="width:${t.progress}%"></div></div>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-secondary btn-sm" onclick='openEditTask(${JSON.stringify(t)})' title="Edit">✏️</button>
+            <button class="btn btn-sm" style="background:var(--rose);color:#fff;border-color:var(--rose);" onclick="deleteTask(${t.id})" title="Delete">🗑️</button>
+          </div>
+        </td>
+      </tr>`).join('');
+
+  // Quick Stats
+  const total = tasks.length;
+  const done  = tasks.filter(t=>t.status==='Done').length;
+  const pp    = total ? Math.round(done/total*100) : 0;
+  document.getElementById('quickStats').innerHTML = `
+    <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--amber);line-height:1;margin-bottom:4px;">${pp}%</div>
+    <div style="font-size:.82rem;color:var(--ink-muted);margin-bottom:20px;">Overall Completion</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pp}%"></div></div>
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;">
+      ${[['Done','sage'],['In Progress','amber'],['Pending','rose']].map(([s,c])=>
+        `<div style="display:flex;justify-content:space-between;font-size:.85rem;">
+          <span style="display:flex;align-items:center;gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:var(--${c});display:inline-block;"></span>${s}</span>
+          <strong>${tasks.filter(t=>t.status===s).length}</strong>
+         </div>`).join('')}
+    </div>`;
+
+  // Priority Chart
+  const priorities = { High:0, Medium:0, Low:0 };
+  tasks.forEach(t => priorities[t.priority]++);
+  if (pieChart) { pieChart.data.datasets[0].data = [priorities.High,priorities.Medium,priorities.Low]; pieChart.update(); }
+  else {
+    const ppCtx = document.getElementById('priorityPie').getContext('2d');
+    pieChart = new Chart(ppCtx, {
+      type:'pie',
+      data:{ labels:['High','Medium','Low'], datasets:[{ data:[priorities.High,priorities.Medium,priorities.Low], backgroundColor:['#C96B6B','#D4822A','#6B8F6E'], borderWidth:3, borderColor:'#FFFDF9', hoverOffset:8 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{family:'DM Sans',size:12}, padding:14, boxWidth:12 } } } }
+    });
+  }
+}
+
+function applyFilters() { renderTable(); }
+function clearFilters() {
+  document.getElementById('filterSearch').value   = '';
+  document.getElementById('filterStatus').value   = 'all';
+  document.getElementById('filterPriority').value = 'all';
+  document.getElementById('filterCategory').value = 'all';
+  renderTable();
+}
+
+function addTask() {
+  const title = document.getElementById('add_title').value.trim();
+  if (!title) { alert('Please enter a task title.'); return; }
+  const tasks = getTasks();
+  tasks.push({
+    id:       nextId(tasks),
+    title,
+    category: document.getElementById('add_category').value,
+    priority: document.getElementById('add_priority').value,
+    due:      document.getElementById('add_due').value,
+    status:   document.getElementById('add_status').value,
+    progress: parseInt(document.getElementById('add_progress').value)||0,
+    notes:    document.getElementById('add_notes').value,
+  });
+  saveTasks(tasks);
+  closeModal('addTaskModal');
+  document.getElementById('add_title').value = '';
+  document.getElementById('add_notes').value = '';
+  renderTable();
+  flash('✅ Task added successfully!');
+}
+
+function openEditTask(task) {
+  document.getElementById('edit_id').value       = task.id;
+  document.getElementById('edit_title').value    = task.title;
+  document.getElementById('edit_due').value      = task.due;
+  document.getElementById('edit_progress').value = task.progress;
+  document.getElementById('edit_notes').value    = task.notes||'';
+  setSelectValue('edit_category', task.category);
+  setSelectValue('edit_priority', task.priority);
+  setSelectValue('edit_status',   task.status);
+  openModal('editTaskModal');
+}
+
+function saveTask() {
+  const id    = parseInt(document.getElementById('edit_id').value);
+  const tasks = getTasks();
+  const idx   = tasks.findIndex(t=>t.id===id);
+  if (idx < 0) return;
+  tasks[idx] = {
+    ...tasks[idx],
+    title:    document.getElementById('edit_title').value.trim(),
+    category: document.getElementById('edit_category').value,
+    priority: document.getElementById('edit_priority').value,
+    due:      document.getElementById('edit_due').value,
+    status:   document.getElementById('edit_status').value,
+    progress: parseInt(document.getElementById('edit_progress').value)||0,
+    notes:    document.getElementById('edit_notes').value,
+  };
+  saveTasks(tasks);
+  closeModal('editTaskModal');
+  renderTable();
+  flash('✏️ Task updated successfully!');
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  saveTasks(getTasks().filter(t=>t.id!==id));
+  renderTable();
+  flash('🗑️ Task deleted.', 'error');
+}
+
+renderTable();
+</script>
+</body>
+</html>
